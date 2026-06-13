@@ -1,0 +1,1126 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinSmart AI — Smart Savings Inside OPay</title>
+<meta name="description" content="AI-powered automatic savings and spending coach for everyday Nigerians. Built inside OPay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'Inter',sans-serif;background:#F5F7FA;color:#0F172A;min-height:100vh;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;outline:none}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+ 
+/* ─── DESIGN TOKENS ─────────────────────────────────────── */
+:root{
+  /* greens – brand */
+  --g50:#F0FDF4; --g100:#DCFCE7; --g200:#BBF7D0;
+  --g400:#4ADE80; --g600:#16A34A; --g700:#15803D;
+  --g800:#166534; --g900:#14532D;
+  /* ambers */
+  --a50:#FFFBEB; --a100:#FEF3C7; --a200:#FDE68A;
+  --a500:#F59E0B; --a600:#D97706; --a800:#92400E;
+  /* blues */
+  --b50:#EFF6FF; --b100:#DBEAFE; --b500:#3B82F6; --b700:#1D4ED8; --b800:#1E40AF;
+  /* reds */
+  --r50:#FFF1F2; --r100:#FFE4E6; --r500:#EF4444; --r700:#B91C1C;
+  /* neutrals */
+  --n0:#FFFFFF; --n50:#F8FAFC; --n100:#F1F5F9;
+  --n200:#E2E8F0; --n300:#CBD5E1; --n400:#94A3B8;
+  --n500:#64748B; --n600:#475569; --n700:#334155;
+  --n800:#1E293B; --n900:#0F172A;
+  /* semantic */
+  --brand:var(--g700); --brand-bg:var(--g50);
+  --surface:var(--n0); --page:#F5F7FA;
+  --border:var(--n200); --border-strong:var(--n300);
+  --text:var(--n900); --text-2:var(--n600); --text-3:var(--n400);
+  /* layout */
+  --sidebar-w:220px; --topbar-h:56px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px;
+}
+ 
+/* ─── APP SHELL ─────────────────────────────────────────── */
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+ 
+/* ─── TOP BAR ───────────────────────────────────────────── */
+.topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:8px;cursor:pointer}
+.topbar-logo{width:32px;height:32px;background:var(--g700);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0}
+.topbar-name{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-tag{font-size:11px;color:var(--text-3);margin-top:-2px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-wallet{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-sm);padding:6px 14px;font-size:13px;font-weight:600;color:var(--g800)}
+.topbar-wallet span{font-weight:400;color:var(--g700);margin-right:4px}
+.topbar-avatar{width:32px;height:32px;background:var(--g700);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer}
+.notif-btn{width:32px;height:32px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:background .15s}
+.notif-btn:hover{background:var(--n100)}
+.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--r500);border-radius:50%}
+ 
+/* ─── SIDEBAR ───────────────────────────────────────────── */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.25rem 0;overflow-y:auto;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h))}
+.sb-section{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);padding:10px 1.25rem 5px;margin-top:8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 1.25rem;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;border-left:3px solid transparent;transition:all .15s;user-select:none}
+.sb-item:hover{background:var(--n50);color:var(--text)}
+.sb-item.active{background:var(--g50);color:var(--g800);border-left-color:var(--g600);font-weight:600}
+.sb-item svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.sb-badge{margin-left:auto;background:var(--a100);color:var(--a800);font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+ 
+/* ─── MAIN CONTENT ──────────────────────────────────────── */
+.main{padding:1.75rem 2rem;overflow-y:auto;background:var(--page)}
+.page{display:none}.page.active{display:block}
+ 
+/* page header */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.ph-title{font-size:20px;font-weight:600;color:var(--text)}
+.ph-sub{font-size:13px;color:var(--text-2);margin-top:4px;line-height:1.5}
+ 
+/* ─── BADGES ────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+.badge-green{background:var(--g100);color:var(--g800)}
+.badge-amber{background:var(--a100);color:var(--a800)}
+.badge-blue{background:var(--b100);color:var(--b800)}
+.badge-red{background:var(--r100);color:var(--r700)}
+.badge-gray{background:var(--n100);color:var(--n600)}
+ 
+/* ─── CARDS ─────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.5rem}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-action{font-size:12px;font-weight:500;color:var(--b700);cursor:pointer;background:none;border:none;white-space:nowrap}
+.card-action:hover{text-decoration:underline}
+ 
+/* ─── METRIC GRID ───────────────────────────────────────── */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.25rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:1rem 1.25rem}
+.metric-lbl{font-size:11px;font-weight:500;color:var(--text-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.metric-val{font-size:24px;font-weight:600;color:var(--text);line-height:1}
+.metric-sub{font-size:11px;margin-top:5px;font-weight:500}
+.metric-sub.up{color:var(--g700)}
+.metric-sub.warn{color:var(--a600)}
+.metric-sub.muted{color:var(--text-3)}
+ 
+/* ─── SAVINGS HERO ──────────────────────────────────────── */
+.savings-hero{background:linear-gradient(135deg,#166534 0%,#15803D 60%,#16A34A 100%);border-radius:var(--r-xl);padding:1.75rem 2rem;margin-bottom:1.25rem;color:#fff;position:relative;overflow:hidden}
+.savings-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,.06);border-radius:50%}
+.savings-hero::after{content:'';position:absolute;bottom:-30px;left:30%;width:120px;height:120px;background:rgba(255,255,255,.04);border-radius:50%}
+.sh-inner{position:relative;z-index:1}
+.sh-lbl{font-size:12px;font-weight:500;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.sh-amount{font-size:36px;font-weight:600;color:#fff;line-height:1;margin-bottom:4px}
+.sh-sub{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:1rem}
+.sh-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.sh-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:#fff}
+.sh-pill-amber{background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.4)}
+.sh-stat{font-size:13px;color:rgba(255,255,255,.7)}
+.sh-stat strong{color:#fff}
+ 
+/* ─── PROGRESS BAR ──────────────────────────────────────── */
+.progress-wrap{margin:8px 0}
+.progress-bg{height:6px;background:var(--n100);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--g600);transition:width .5s ease}
+.progress-fill.blue{background:var(--b500)}
+.progress-fill.amber{background:var(--a500)}
+.progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-top:4px}
+ 
+/* ─── TRANSACTION ROWS ──────────────────────────────────── */
+.tx-list{list-style:none}
+.tx-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.tx-row:last-child{border-bottom:none}
+.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.tx-icon.save{background:var(--g50);color:var(--g700)}
+.tx-icon.debit{background:var(--r50);color:var(--r700)}
+.tx-icon.ajo{background:var(--b50);color:var(--b700)}
+.tx-icon.alert{background:var(--a50);color:var(--a600)}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{font-size:11px;color:var(--text-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-amt{font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.tx-amt.green{color:var(--g700)}
+.tx-amt.red{color:var(--r700)}
+ 
+/* ─── ALERT CARDS ───────────────────────────────────────── */
+.alert-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.alert-card{border:1px solid var(--border);border-radius:var(--r-md);padding:1rem 1.25rem;display:flex;gap:12px}
+.alert-card.urgent{background:var(--a50);border-color:var(--a200)}
+.alert-card.info{background:var(--b50);border-color:var(--b100)}
+.alert-card.success{background:var(--g50);border-color:var(--g200)}
+.alert-card.neutral{background:var(--n50);border-color:var(--n200)}
+.ac-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.ac-icon.urgent{background:var(--a100)}
+.ac-icon.info{background:var(--b100)}
+.ac-icon.success{background:var(--g100)}
+.ac-icon.neutral{background:var(--n100)}
+.ac-body{flex:1;min-width:0}
+.ac-msg{font-size:13px;line-height:1.6;color:var(--text)}
+.ac-time{font-size:11px;color:var(--text-3);margin-top:3px}
+.ac-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ac-btn{border:1px solid var(--border);background:var(--surface);border-radius:var(--r-sm);padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);transition:background .15s}
+.ac-btn:hover{background:var(--n50)}
+.ac-btn.primary{background:var(--g700);color:#fff;border-color:var(--g700)}
+.ac-btn.primary:hover{background:var(--g800)}
+ 
+/* ─── AJO ───────────────────────────────────────────────── */
+.ajo-group-meta{display:flex;gap:1.5rem;background:var(--n50);border-radius:var(--r-md);padding:12px 1rem;margin-bottom:1rem;flex-wrap:wrap}
+.ajo-stat{display:flex;flex-direction:column;gap:3px}
+.ajo-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:600}
+.ajo-stat-val{font-size:16px;font-weight:600;color:var(--text)}
+.ajo-members{list-style:none}
+.ajo-member{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ajo-member:last-child{border-bottom:none}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.av-green{background:var(--g100);color:var(--g800)}
+.av-blue{background:var(--b100);color:var(--b800)}
+.av-amber{background:var(--a100);color:var(--a800)}
+.av-gray{background:var(--n100);color:var(--n600)}
+.av-red{background:var(--r100);color:var(--r700)}
+.member-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.member-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.streak-pill{font-size:11px;font-weight:600;color:var(--g800);background:var(--g100);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0}
+.missed-pill{font-size:11px;font-weight:600;color:var(--a800);background:var(--a100);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0}
+.payout-pill{font-size:11px;font-weight:600;color:var(--b800);background:var(--b100);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0}
+ 
+/* ─── ONBOARDING ────────────────────────────────────────── */
+.ob-wrap{max-width:380px;margin:0 auto}
+.ob-step{display:none}.ob-step.active{display:block}
+.ob-hero{text-align:center;padding:2rem 0 1.5rem}
+.ob-emoji{font-size:48px;line-height:1;margin-bottom:1rem;display:block}
+.ob-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:.5rem}
+.ob-sub{font-size:14px;color:var(--text-2);line-height:1.65}
+.ob-dots{display:flex;justify-content:center;gap:6px;margin:1.25rem 0}
+.ob-dot{width:8px;height:8px;border-radius:4px;background:var(--n200);transition:all .25s}
+.ob-dot.active{background:var(--g600);width:22px}
+.ob-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem}
+.ob-slider-row{display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:12px;margin-bottom:1rem}
+.ob-slider-lbl{font-size:13px;color:var(--text-2);font-weight:500}
+.ob-slider-val{font-size:15px;font-weight:600;color:var(--text);text-align:right}
+.preview-box{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);padding:1rem;font-size:13px;color:var(--g800);line-height:1.65;margin-bottom:1.25rem}
+.preview-box strong{color:var(--g900)}
+.ob-success{text-align:center}
+.ob-success-icon{width:64px;height:64px;background:var(--g100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1rem}
+.settings-box{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);padding:1rem 1.25rem;font-size:13px;color:var(--g800);text-align:left;line-height:1.8}
+ 
+/* ─── WITHDRAW ──────────────────────────────────────────── */
+.wd-wrap{max-width:360px;margin:0 auto}
+.wd-balance-box{background:linear-gradient(135deg,#166534,#15803D);border-radius:var(--r-lg);padding:1.5rem;text-align:center;color:#fff;margin-bottom:1.25rem}
+.wd-balance-lbl{font-size:12px;color:rgba(255,255,255,.65);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+.wd-balance-num{font-size:36px;font-weight:600}
+.wd-balance-meta{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px}
+.wd-section-lbl{font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wd-penalty-box{background:var(--a50);border:1px solid var(--a200);border-radius:var(--r-md);padding:12px 1rem;font-size:13px;color:var(--a800);line-height:1.6;margin-bottom:1rem}
+.wd-streak-box{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);padding:12px 1rem;font-size:13px;color:var(--g800);line-height:1.6;margin-bottom:1.25rem}
+.wd-success{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-lg);padding:2rem;text-align:center}
+.wd-success-icon{width:56px;height:56px;background:var(--g100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 1rem}
+ 
+/* ─── SPENDING BREAKDOWN CHART ───────────────────────────── */
+.spend-bar{margin-bottom:12px}
+.spend-bar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.spend-bar-label{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px}
+.spend-bar-emoji{font-size:14px}
+.spend-bar-amt{font-size:13px;font-weight:600;color:var(--text)}
+.spend-bar-track{height:8px;background:var(--n100);border-radius:4px;overflow:hidden}
+.spend-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+ 
+/* ─── BUTTONS ───────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-green{background:var(--g700);color:#fff;padding:11px 24px}
+.btn-green:hover{background:var(--g800)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-2);padding:11px 24px}
+.btn-outline:hover{background:var(--n50);color:var(--text)}
+.btn-full{width:100%;padding:13px;font-size:15px}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn-danger{background:var(--r50);color:var(--r700);border:1px solid var(--r100)}
+.btn-danger:hover{background:var(--r100)}
+ 
+/* ─── RANGE SLIDER ──────────────────────────────────────── */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--n200);cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--g700);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--g700);border:2px solid #fff;cursor:pointer}
+ 
+/* ─── DIVIDER ───────────────────────────────────────────── */
+.divider{height:1px;background:var(--border);margin:1rem 0}
+ 
+/* ─── EMPTY STATE ───────────────────────────────────────── */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-3)}
+.empty-icon{font-size:32px;margin-bottom:.75rem}
+.empty-msg{font-size:13px;line-height:1.5}
+ 
+/* ─── LABEL INPUT ───────────────────────────────────────── */
+.label-sheet{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1rem}
+.label-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:.75rem}
+.label-meta{font-size:12px;color:var(--text-3);margin-bottom:1rem}
+.label-options{display:flex;gap:8px;flex-wrap:wrap}
+.label-chip{border:1px solid var(--border);background:var(--surface);border-radius:20px;padding:7px 16px;font-size:13px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;color:var(--text-2)}
+.label-chip:hover{border-color:var(--g400);background:var(--g50);color:var(--g800)}
+.label-chip.selected{background:var(--g700);color:#fff;border-color:var(--g700)}
+.label-chip.selected:hover{background:var(--g800)}
+ 
+/* ─── ADMIN ─────────────────────────────────────────────── */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.25rem}
+.admin-metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:1.25rem}
+.admin-metric-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:600;margin-bottom:6px}
+.admin-metric-val{font-size:28px;font-weight:600;color:var(--text)}
+.admin-metric-sub{font-size:11px;margin-top:4px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--n50)}
+.flag-row td{background:#fff8f1}
+.flag-row:hover td{background:var(--a50)}
+ 
+/* ─── MOBILE ────────────────────────────────────────────── */
+.hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:all .3s}
+.mob-close{display:none}
+ 
+@media(max-width:768px){
+  :root{--sidebar-w:0px}
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:-260px;top:0;width:260px;height:100%;z-index:200;transition:left .3s;padding-top:calc(var(--topbar-h) + 1rem)}
+  .sidebar.open{left:0;box-shadow:4px 0 20px rgba(0,0,0,.12)}
+  .hamburger{display:flex}
+  .topbar{padding:0 1rem}
+  .main{padding:1.25rem}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .admin-grid{grid-template-columns:repeat(2,1fr)}
+  .ob-wrap{max-width:100%}
+  .wd-wrap{max-width:100%}
+  .sh-amount{font-size:28px}
+  .content-2col{grid-template-columns:1fr!important}
+}
+@media(max-width:480px){
+  .metrics{grid-template-columns:1fr}
+  .ajo-group-meta{gap:1rem}
+}
+ 
+/* ─── 2-COL LAYOUT ──────────────────────────────────────── */
+.content-2col{display:grid;grid-template-columns:1fr 340px;gap:1.25rem;align-items:start}
+.col-stack{display:flex;flex-direction:column;gap:1.25rem}
+ 
+/* ─── MINI CARD ─────────────────────────────────────────── */
+.mini-card{background:var(--n50);border:1px solid var(--border);border-radius:var(--r-md);padding:.875rem 1rem}
+ 
+/* ─── TOAST ─────────────────────────────────────────────── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--n900);color:#fff;border-radius:var(--r-md);padding:.875rem 1.25rem;font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all .3s;z-index:999;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translateY(0)}
+ 
+/* ─── OVERLAY ───────────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:150;backdrop-filter:blur(2px)}
+.overlay.open{display:block}
+</style>
+</head>
+<body>
+ 
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="toast" id="toast"></div>
+ 
+<div class="app">
+ 
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-brand" onclick="navigate('dashboard')">
+        <div class="topbar-logo">FS</div>
+        <div>
+          <div class="topbar-name">FinSmart AI</div>
+          <div class="topbar-tag">Inside OPay</div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-wallet"><span>Wallet</span>₦31,240</div>
+      <button class="notif-btn" onclick="navigate('coach')" aria-label="Notifications">
+        🔔<span class="notif-dot"></span>
+      </button>
+      <div class="topbar-avatar" title="Amaka Obi">AO</div>
+    </div>
+  </header>
+ 
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-section">Overview</div>
+    <div class="sb-item active" data-page="dashboard" onclick="navigate('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item" data-page="coach" onclick="navigate('coach')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Spending coach
+      <span class="sb-badge">3</span>
+    </div>
+    <div class="sb-item" data-page="labels" onclick="navigate('labels')">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Label transfers
+    </div>
+    <div class="sb-section">Community</div>
+    <div class="sb-item" data-page="ajo" onclick="navigate('ajo')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Digital Ajo
+    </div>
+    <div class="sb-section">Finance</div>
+    <div class="sb-item" data-page="withdraw" onclick="navigate('withdraw')">
+      <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Access savings
+    </div>
+    <div class="sb-section">System</div>
+    <div class="sb-item" data-page="settings" onclick="navigate('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Savings settings
+    </div>
+    <div class="sb-item" data-page="admin" onclick="navigate('admin')">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Admin panel
+    </div>
+  </aside>
+ 
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+ 
+    <!-- ── DASHBOARD ── -->
+    <div id="page-dashboard" class="page active">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Good morning, Amaka 👋</div>
+          <div class="ph-sub">Your savings are working quietly. Here's where you stand.</div>
+        </div>
+        <span class="badge badge-green">🟢 Auto-save active</span>
+      </div>
+ 
+      <div class="savings-hero">
+        <div class="sh-inner">
+          <div class="sh-lbl">Total savings pocket</div>
+          <div class="sh-amount">₦18,450.00</div>
+          <div class="sh-sub">Locked until September 13, 2025</div>
+          <div class="sh-row">
+            <div class="sh-pill">🔥 18-day streak</div>
+            <div class="sh-pill sh-pill-amber">10% savings rate</div>
+            <div class="sh-stat">Saved this month: <strong>₦6,200</strong></div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-lbl">Auto-saves this month</div>
+          <div class="metric-val">11</div>
+          <div class="metric-sub up">↑ 3 vs last month</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl">Ajo groups</div>
+          <div class="metric-val">2</div>
+          <div class="metric-sub warn">Next due in 3 days</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl">Total saved (all-time)</div>
+          <div class="metric-val">₦41.2k</div>
+          <div class="metric-sub up">↑ ₦6,200 this month</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl">Coach alerts sent</div>
+          <div class="metric-val">7</div>
+          <div class="metric-sub muted">4 acted on (57%)</div>
+        </div>
+      </div>
+ 
+      <div class="content-2col">
+        <div class="col-stack">
+ 
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">September savings goal</div>
+              <span class="badge badge-amber">68% there</span>
+            </div>
+            <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">Target: ₦27,000 by Sep 13 &nbsp;·&nbsp; ₦8,550 remaining</div>
+            <div class="progress-wrap">
+              <div class="progress-bg"><div class="progress-fill" style="width:68%"></div></div>
+              <div class="progress-meta"><span>₦18,450 saved</span><span>₦8,550 to go</span></div>
+            </div>
+            <div style="margin-top:1rem;font-size:12px;color:var(--text-3)">At your current rate you'll hit this goal in <strong style="color:var(--g700)">~19 days</strong> 🎯</div>
+          </div>
+ 
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Recent savings activity</div>
+              <button class="card-action">View all</button>
+            </div>
+            <ul class="tx-list">
+              <li class="tx-row">
+                <div class="tx-icon save">🐷</div>
+                <div class="tx-info">
+                  <div class="tx-name">Auto-save — ₦31,000 credit</div>
+                  <div class="tx-meta">10% rate · Today, 9:14 AM</div>
+                </div>
+                <div class="tx-amt green">+₦3,100</div>
+              </li>
+              <li class="tx-row">
+                <div class="tx-icon ajo">👥</div>
+                <div class="tx-info">
+                  <div class="tx-name">Ajo contribution · Market Friends</div>
+                  <div class="tx-meta">Monthly · Jun 10</div>
+                </div>
+                <div class="tx-amt red">−₦5,000</div>
+              </li>
+              <li class="tx-row">
+                <div class="tx-icon save">🐷</div>
+                <div class="tx-info">
+                  <div class="tx-name">Auto-save — ₦15,000 credit</div>
+                  <div class="tx-meta">10% rate · Jun 9, 11:32 AM</div>
+                </div>
+                <div class="tx-amt green">+₦1,500</div>
+              </li>
+              <li class="tx-row">
+                <div class="tx-icon alert">💡</div>
+                <div class="tx-info">
+                  <div class="tx-name">Manually saved from coach prompt</div>
+                  <div class="tx-meta">You acted on a spending alert · Jun 7</div>
+                </div>
+                <div class="tx-amt green">+₦2,000</div>
+              </li>
+              <li class="tx-row">
+                <div class="tx-icon save">🐷</div>
+                <div class="tx-info">
+                  <div class="tx-name">Auto-save — ₦8,500 credit</div>
+                  <div class="tx-meta">10% rate · Jun 5, 3:01 PM</div>
+                </div>
+                <div class="tx-amt green">+₦850</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="col-stack">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Spending this month</div></div>
+            <div class="spend-bar">
+              <div class="spend-bar-head">
+                <div class="spend-bar-label"><span class="spend-bar-emoji">🍔</span>Food &amp; dining</div>
+                <div class="spend-bar-amt">₦14,300</div>
+              </div>
+              <div class="spend-bar-track"><div class="spend-bar-fill" style="width:72%;background:var(--g600)"></div></div>
+            </div>
+            <div class="spend-bar">
+              <div class="spend-bar-head">
+                <div class="spend-bar-label"><span class="spend-bar-emoji">🚌</span>Transport</div>
+                <div class="spend-bar-amt">₦8,900</div>
+              </div>
+              <div class="spend-bar-track"><div class="spend-bar-fill" style="width:45%;background:var(--b500)"></div></div>
+            </div>
+            <div class="spend-bar">
+              <div class="spend-bar-head">
+                <div class="spend-bar-label"><span class="spend-bar-emoji">📱</span>Airtime &amp; data</div>
+                <div class="spend-bar-amt">₦3,200</div>
+              </div>
+              <div class="spend-bar-track"><div class="spend-bar-fill" style="width:16%;background:var(--a500)"></div></div>
+            </div>
+            <div class="spend-bar">
+              <div class="spend-bar-head">
+                <div class="spend-bar-label"><span class="spend-bar-emoji">❓</span>Unlabeled</div>
+                <div class="spend-bar-amt">₦6,200</div>
+              </div>
+              <div class="spend-bar-track"><div class="spend-bar-fill" style="width:31%;background:var(--n300)"></div></div>
+            </div>
+            <div style="margin-top:.75rem;font-size:12px;color:var(--text-3)">6,200 unlabeled · <span style="color:var(--b700);cursor:pointer" onclick="navigate('labels')">Label them →</span></div>
+          </div>
+ 
+          <div class="card">
+            <div class="card-head"><div class="card-title">Ajo next deduction</div></div>
+            <div class="mini-card" style="margin-bottom:.75rem">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Market Friends Circle</div>
+              <div style="font-size:12px;color:var(--text-3)">₦5,000 due in <strong style="color:var(--a600)">3 days</strong></div>
+            </div>
+            <div class="mini-card">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">NYSC Corpers Club</div>
+              <div style="font-size:12px;color:var(--text-3)">₦3,000 due in <strong style="color:var(--text-2)">11 days</strong></div>
+            </div>
+            <button class="btn btn-outline btn-sm btn-full" style="margin-top:1rem" onclick="navigate('ajo')">View all Ajo groups</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ── SPENDING COACH ── -->
+    <div id="page-coach" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Spending coach</div>
+          <div class="ph-sub">Personalised nudges — only when they genuinely matter.</div>
+        </div>
+        <span class="badge badge-amber">3 new alerts</span>
+      </div>
+ 
+      <ul class="alert-list" style="margin-bottom:1.25rem">
+        <li class="alert-card urgent">
+          <div class="ac-icon urgent">⚠️</div>
+          <div class="ac-body">
+            <div class="ac-msg"><strong>You have ₦2,400 left and 9 days to go.</strong> Based on your habits, your transport alone costs around ₦1,800/week. That leaves very little for food.</div>
+            <div class="ac-time">Today · 8:02 AM · Auto-generated from spending patterns</div>
+            <div class="ac-actions">
+              <button class="ac-btn primary" onclick="dismissAlert(this,'Alert noted — we\'re tracking this.')">See options</button>
+              <button class="ac-btn" onclick="dismissAlert(this,'Dismissed.')">Dismiss</button>
+            </div>
+          </div>
+        </li>
+        <li class="alert-card success">
+          <div class="ac-icon success">💰</div>
+          <div class="ac-body">
+            <div class="ac-msg"><strong>₦31,000 just arrived — and ₦3,100 is already in your savings pocket.</strong> We moved it before you saw it. You didn't have to do a thing.</div>
+            <div class="ac-time">Today · 9:14 AM · Auto-save triggered</div>
+            <div class="ac-actions">
+              <button class="ac-btn" onclick="dismissAlert(this,'Seen ✓')">Got it</button>
+            </div>
+          </div>
+        </li>
+        <li class="alert-card info">
+          <div class="ac-icon info">🏠</div>
+          <div class="ac-body">
+            <div class="ac-msg"><strong>Rent likely due in 11 days.</strong> Based on last month's pattern, you'll need ₦35,000. Your wallet currently has ₦2,400. The gap is ₦32,600 — here's what you can do.</div>
+            <div class="ac-time">Yesterday · 6:30 PM · Predictive alert</div>
+            <div class="ac-actions">
+              <button class="ac-btn primary" onclick="dismissAlert(this,'Rent savings goal started.')">Start a rent goal</button>
+              <button class="ac-btn" onclick="dismissAlert(this,'Dismissed.')">I\'ll handle it</button>
+            </div>
+          </div>
+        </li>
+        <li class="alert-card neutral">
+          <div class="ac-icon neutral">🎯</div>
+          <div class="ac-body">
+            <div class="ac-msg"><strong>You're on a 18-day saving streak!</strong> That's your longest streak ever. Keep the momentum — your September goal is within reach.</div>
+            <div class="ac-time">Jun 11 · 7:00 AM · Milestone</div>
+            <div class="ac-actions">
+              <button class="ac-btn" onclick="dismissAlert(this,'Thanks! 💪')">Nice one</button>
+            </div>
+          </div>
+        </li>
+      </ul>
+ 
+      <div class="card">
+        <div class="card-head"><div class="card-title">Label your recent transfers</div><span class="badge badge-amber">6 unlabeled</span></div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:1rem">Help the AI understand your spending — one tap per transfer.</div>
+        <div class="label-sheet" id="ls1">
+          <div class="label-title">Transfer to <strong>Ola Babs</strong> — ₦4,500</div>
+          <div class="label-meta">Jun 12 · 3:14 PM</div>
+          <div class="label-options">
+            <div class="label-chip" onclick="selectLabel(this,'ls1','🍔 Food')">🍔 Food</div>
+            <div class="label-chip" onclick="selectLabel(this,'ls1','🚌 Transport')">🚌 Transport</div>
+            <div class="label-chip" onclick="selectLabel(this,'ls1','🏠 Rent')">🏠 Rent</div>
+            <div class="label-chip" onclick="selectLabel(this,'ls1','❓ Other')">❓ Other</div>
+          </div>
+        </div>
+        <div class="label-sheet" id="ls2">
+          <div class="label-title">Transfer to <strong>Mama Nkechi</strong> — ₦1,700</div>
+          <div class="label-meta">Jun 11 · 10:22 AM</div>
+          <div class="label-options">
+            <div class="label-chip" onclick="selectLabel(this,'ls2','🍔 Food')">🍔 Food</div>
+            <div class="label-chip" onclick="selectLabel(this,'ls2','🚌 Transport')">🚌 Transport</div>
+            <div class="label-chip" onclick="selectLabel(this,'ls2','🏠 Rent')">🏠 Rent</div>
+            <div class="label-chip" onclick="selectLabel(this,'ls2','❓ Other')">❓ Other</div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ── LABEL TRANSFERS ── -->
+    <div id="page-labels" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Label transfers</div>
+          <div class="ph-sub">Help FinSmart understand your spending — just one tap. The AI learns over time and stops asking.</div>
+        </div>
+        <span class="badge badge-amber">6 unlabeled</span>
+      </div>
+ 
+      <div class="card">
+        <div class="card-head"><div class="card-title">Unlabeled transfers</div><button class="card-action">Label all</button></div>
+        <div id="label-list">
+          <div class="label-sheet" id="lbl-a">
+            <div class="label-title">Transfer to <strong>Ola Babs</strong> — ₦4,500</div>
+            <div class="label-meta">Jun 12 · First time sending to this person</div>
+            <div class="label-options">
+              <div class="label-chip" onclick="selectLabel(this,'lbl-a','🍔 Food')">🍔 Food</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-a','🚌 Transport')">🚌 Transport</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-a','🏠 Rent')">🏠 Rent</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-a','❓ Other')">❓ Other</div>
+            </div>
+          </div>
+          <div class="label-sheet" id="lbl-b">
+            <div class="label-title">Transfer to <strong>Mama Nkechi</strong> — ₦1,700</div>
+            <div class="label-meta">Jun 11 · AI thinks: Food (based on 2 past labels)</div>
+            <div class="label-options">
+              <div class="label-chip" onclick="selectLabel(this,'lbl-b','🍔 Food')">🍔 Food</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-b','🚌 Transport')">🚌 Transport</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-b','🏠 Rent')">🏠 Rent</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-b','❓ Other')">❓ Other</div>
+            </div>
+          </div>
+          <div class="label-sheet" id="lbl-c">
+            <div class="label-title">Transfer to <strong>AbdulRasheed</strong> — ₦3,000</div>
+            <div class="label-meta">Jun 10 · 3rd time sending — AI will auto-label after this</div>
+            <div class="label-options">
+              <div class="label-chip" onclick="selectLabel(this,'lbl-c','🍔 Food')">🍔 Food</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-c','🚌 Transport')">🚌 Transport</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-c','🏠 Rent')">🏠 Rent</div>
+              <div class="label-chip" onclick="selectLabel(this,'lbl-c','❓ Other')">❓ Other</div>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="card-head"><div class="card-title">Auto-learned labels</div><span class="badge badge-green">AI active</span></div>
+        <ul class="tx-list">
+          <li class="tx-row">
+            <div class="tx-icon save" style="background:var(--g50)">🏠</div>
+            <div class="tx-info"><div class="tx-name">Landlord Emeka</div><div class="tx-meta">Always labeled: Rent · Learned after 3 labels</div></div>
+            <span class="badge badge-green">Auto-tagged</span>
+          </li>
+          <li class="tx-row">
+            <div class="tx-icon save" style="background:var(--b50)">🚌</div>
+            <div class="tx-info"><div class="tx-name">Bello Keke</div><div class="tx-meta">Always labeled: Transport · Learned after 3 labels</div></div>
+            <span class="badge badge-green">Auto-tagged</span>
+          </li>
+          <li class="tx-row">
+            <div class="tx-icon save" style="background:var(--a50)">🍔</div>
+            <div class="tx-info"><div class="tx-name">Mama Nkechi</div><div class="tx-meta">2 of 3 labels as Food · Learning...</div></div>
+            <span class="badge badge-amber">Learning</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+ 
+    <!-- ── DIGITAL AJO ── -->
+    <div id="page-ajo" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Digital Ajo</div>
+          <div class="ph-sub">Your savings circles — automated, dignified, and drama-free.</div>
+        </div>
+        <button class="btn btn-green btn-sm" onclick="toast('Group creation coming soon!')">+ Create group</button>
+      </div>
+ 
+      <!-- Group 1 -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Market Friends Circle</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:3px">Monthly · ₦5,000/member · Rotating payout · 5 members</div>
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="ajo-group-meta">
+          <div class="ajo-stat"><div class="ajo-stat-lbl">Group pot</div><div class="ajo-stat-val">₦25,000</div></div>
+          <div class="ajo-stat"><div class="ajo-stat-lbl">Next payout</div><div class="ajo-stat-val">Jul 1</div></div>
+          <div class="ajo-stat"><div class="ajo-stat-lbl">This cycle</div><div class="ajo-stat-val">Month 6 of 5</div></div>
+          <div class="ajo-stat"><div class="ajo-stat-lbl">Payout to</div><div class="ajo-stat-val" style="color:var(--b700)">Ngozi</div></div>
+        </div>
+        <ul class="ajo-members">
+          <li class="ajo-member">
+            <div class="av av-green">AO</div>
+            <div style="flex:1">
+              <div class="member-name">Amaka Obi <span style="font-size:11px;color:var(--text-3)">(you)</span></div>
+              <div class="member-sub">Turn 1 · Already received payout</div>
+            </div>
+            <div class="streak-pill">🔥 6 streak</div>
+          </li>
+          <li class="ajo-member">
+            <div class="av av-blue">NG</div>
+            <div style="flex:1">
+              <div class="member-name">Ngozi Garba</div>
+              <div class="member-sub">Turn 2 · Next payout recipient</div>
+            </div>
+            <div class="payout-pill">💵 Next up</div>
+          </li>
+          <li class="ajo-member">
+            <div class="av av-amber">KA</div>
+            <div style="flex:1">
+              <div class="member-name">Kemi Adeyemi</div>
+              <div class="member-sub">Turn 3 · Paid this month</div>
+            </div>
+            <div class="streak-pill">🔥 5 streak</div>
+          </li>
+          <li class="ajo-member">
+            <div class="av av-red">BO</div>
+            <div style="flex:1">
+              <div class="member-name">Bola Okonkwo</div>
+              <div class="member-sub">Turn 4 · Low balance alert sent privately</div>
+            </div>
+            <div class="missed-pill">⚠️ Missed once</div>
+          </li>
+          <li class="ajo-member">
+            <div class="av av-green">FI</div>
+            <div style="flex:1">
+              <div class="member-name">Funke Ibrahim</div>
+              <div class="member-sub">Turn 5 · Paid this month</div>
+            </div>
+            <div class="streak-pill">🔥 6 streak</div>
+          </li>
+        </ul>
+      </div>
+ 
+      <!-- Group 2 -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">NYSC Corpers Savings Club</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:3px">Monthly · ₦3,000/member · Shared goal — new laptops</div>
+          </div>
+          <span class="badge badge-amber">Forming</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">Target: ₦150,000 &nbsp;·&nbsp; 3 of 5 members joined</div>
+        <div class="progress-wrap" style="margin-bottom:1rem">
+          <div class="progress-bg"><div class="progress-fill blue" style="width:0%"></div></div>
+          <div class="progress-meta"><span>₦0 saved so far</span><span>Starts when 5 members join</span></div>
+        </div>
+        <button class="btn btn-outline btn-sm btn-full" onclick="toast('Invite link copied! Share with your corper friends.')">📋 Copy invite link — 2 spots left</button>
+      </div>
+    </div>
+ 
+    <!-- ── ACCESS SAVINGS ── -->
+    <div id="page-withdraw" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Access savings</div>
+          <div class="ph-sub">Your money is always yours. Early withdrawal has a 5% penalty.</div>
+        </div>
+      </div>
+ 
+      <div class="wd-wrap">
+        <div id="wd-main">
+          <div class="wd-balance-box">
+            <div class="wd-balance-lbl">Your savings pocket</div>
+            <div class="wd-balance-num" id="wd-balance-display">₦18,450</div>
+            <div class="wd-balance-meta">Locked until September 13, 2025</div>
+          </div>
+ 
+          <div style="margin-bottom:1.25rem">
+            <div class="wd-section-lbl">How much do you need?</div>
+            <input type="range" id="wd-slider" min="500" max="18450" value="5000" step="100" oninput="calcWithdraw(this.value)" style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3)">
+              <span>₦500</span>
+              <span id="wd-chosen" style="font-size:14px;font-weight:600;color:var(--text)">₦5,000</span>
+              <span>₦18,450</span>
+            </div>
+          </div>
+ 
+          <div class="wd-penalty-box" id="wd-penalty">
+            Early withdrawal penalty: <strong>₦250 (5%)</strong><br>
+            You will receive: <strong id="wd-receive">₦4,750</strong> in your OPay wallet immediately.
+          </div>
+ 
+          <div class="wd-streak-box">
+            🔥 Withdrawing early will reset your <strong>18-day streak</strong>. Your auto-save settings stay active — you can rebuild it.
+          </div>
+ 
+          <button class="btn btn-green btn-full" id="wd-confirm-btn" onclick="processWithdraw()">
+            Confirm — withdraw ₦5,000
+          </button>
+          <button class="btn btn-outline btn-full" style="margin-top:10px" onclick="navigate('dashboard')">
+            Cancel — keep saving
+          </button>
+        </div>
+ 
+        <div id="wd-success" class="wd-success" style="display:none">
+          <div class="wd-success-icon">✅</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:.5rem">Done!</div>
+          <div style="font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:1.5rem" id="wd-success-msg">₦4,750 has been sent to your OPay wallet. Your savings settings are still active — keep going.</div>
+          <button class="btn btn-green btn-full" onclick="resetWithdraw()">Back to dashboard</button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ── SETTINGS / ONBOARDING ── -->
+    <div id="page-settings" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Savings settings</div>
+          <div class="ph-sub">Your auto-save is configured. Adjust anytime.</div>
+        </div>
+      </div>
+ 
+      <div class="ob-wrap">
+        <div id="ob-step1" class="ob-step active">
+          <div class="ob-hero">
+            <span class="ob-emoji">🐷</span>
+            <div class="ob-title">Save before you spend it</div>
+            <div class="ob-sub">Every time money enters your OPay wallet, FinSmart quietly moves a small percentage to your savings pocket — before you can spend it. Like a digital <em>agbadaero</em>.</div>
+          </div>
+          <div class="ob-dots">
+            <div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+          </div>
+          <button class="btn btn-green btn-full" onclick="goStep(2)">Next →</button>
+        </div>
+ 
+        <div id="ob-step2" class="ob-step">
+          <div class="ob-hero">
+            <span class="ob-emoji">🔒</span>
+            <div class="ob-title">Your money stays yours</div>
+            <div class="ob-sub">Your savings are locked for a period you choose. You can always access them early — a small 5% penalty keeps you honest. No bank, no branch, no forms.</div>
+          </div>
+          <div class="ob-dots">
+            <div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div>
+          </div>
+          <button class="btn btn-green btn-full" onclick="goStep(3)">Next →</button>
+          <button class="btn btn-outline btn-full" style="margin-top:10px" onclick="goStep(1)">Back</button>
+        </div>
+ 
+        <div id="ob-step3" class="ob-step">
+          <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:.25rem">Set your savings rate</div>
+          <div style="font-size:13px;color:var(--text-2);margin-bottom:1.25rem">Choose how much of each credit goes to savings. Change it anytime.</div>
+          <div class="ob-dots">
+            <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div>
+          </div>
+          <div class="ob-form">
+            <div class="ob-slider-row">
+              <div class="ob-slider-lbl">Save rate</div>
+              <input type="range" id="rate-slider" min="3" max="25" value="10" step="1" oninput="updatePreview()">
+              <div class="ob-slider-val" id="rate-val">10%</div>
+            </div>
+            <div class="ob-slider-row" style="margin-bottom:0">
+              <div class="ob-slider-lbl">Lock period</div>
+              <input type="range" id="lock-slider" min="1" max="6" value="3" step="1" oninput="updatePreview()">
+              <div class="ob-slider-val" id="lock-val">3 mo</div>
+            </div>
+          </div>
+          <div class="preview-box" id="preview-box">
+            On a <strong>₦10,000</strong> credit → <strong>₦1,000</strong> moves to savings automatically. Locked for <strong>3 months</strong>.
+          </div>
+          <button class="btn btn-green btn-full" onclick="activateSavings()">Activate auto-savings ✓</button>
+          <button class="btn btn-outline btn-full" style="margin-top:10px" onclick="goStep(2)">Back</button>
+        </div>
+ 
+        <div id="ob-step4" class="ob-step">
+          <div class="ob-success">
+            <div class="ob-success-icon">✅</div>
+            <div class="ob-title" style="margin-bottom:.5rem">You're all set!</div>
+            <div class="ob-sub" style="margin-bottom:1.25rem">FinSmart is now active. The next time money enters your OPay wallet, your savings will start automatically — you won't have to do a thing.</div>
+            <div class="settings-box">
+              <strong>Your settings</strong><br>
+              Save <span id="conf-rate">10%</span> of every credit<br>
+              Locked for <span id="conf-lock">3 months</span><br>
+              Early withdrawal: 5% penalty
+            </div>
+            <button class="btn btn-green btn-full" style="margin-top:1.25rem" onclick="navigate('dashboard')">Go to dashboard →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ── ADMIN ── -->
+    <div id="page-admin" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Admin panel</div>
+          <div class="ph-sub">Platform overview — real-time metrics and user activity.</div>
+        </div>
+        <span class="badge badge-green">Live</span>
+      </div>
+ 
+      <div class="admin-grid">
+        <div class="admin-metric">
+          <div class="admin-metric-lbl">Total users</div>
+          <div class="admin-metric-val">12,841</div>
+          <div class="admin-metric-sub metric-sub up">↑ 340 this week</div>
+        </div>
+        <div class="admin-metric">
+          <div class="admin-metric-lbl">Active savers</div>
+          <div class="admin-metric-val">8,204</div>
+          <div class="admin-metric-sub metric-sub muted">63.9% of users</div>
+        </div>
+        <div class="admin-metric">
+          <div class="admin-metric-lbl">Total saved (platform)</div>
+          <div class="admin-metric-val">₦142M</div>
+          <div class="admin-metric-sub metric-sub up">↑ ₦18M this month</div>
+        </div>
+        <div class="admin-metric">
+          <div class="admin-metric-lbl">Ajo groups active</div>
+          <div class="admin-metric-val">1,047</div>
+          <div class="admin-metric-sub metric-sub up">↑ 89 this week</div>
+        </div>
+        <div class="admin-metric">
+          <div class="admin-metric-lbl">Alerts sent (MTD)</div>
+          <div class="admin-metric-val">34,210</div>
+          <div class="admin-metric-sub metric-sub muted">41% acted on</div>
+        </div>
+        <div class="admin-metric">
+          <div class="admin-metric-lbl">Fraud flags</div>
+          <div class="admin-metric-val" style="color:var(--r700)">7</div>
+          <div class="admin-metric-sub" style="color:var(--r700)">⚠️ Needs review</div>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="card-head"><div class="card-title">Recent user activity</div><button class="card-action">Export CSV</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th><th>Action</th><th>Amount</th><th>Status</th><th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Amaka Obi</strong><br><span style="font-size:11px;color:var(--text-3)">Lagos</span></td><td>Auto-save triggered</td><td style="color:var(--g700)">+₦3,100</td><td><span class="badge badge-green">Success</span></td><td style="color:var(--text-3)">9:14 AM</td></tr>
+              <tr><td><strong>Chukwudi Eze</strong><br><span style="font-size:11px;color:var(--text-3)">Abuja</span></td><td>Ajo group created</td><td>—</td><td><span class="badge badge-blue">Active</span></td><td style="color:var(--text-3)">8:51 AM</td></tr>
+              <tr class="flag-row"><td><strong>Unknown #4412</strong><br><span style="font-size:11px;color:var(--r700)">⚠️ Flagged</span></td><td>Rapid withdrawal after large credit</td><td style="color:var(--r700)">−₦50,000</td><td><span class="badge badge-red">Flagged</span></td><td style="color:var(--text-3)">8:03 AM</td></tr>
+              <tr><td><strong>Ngozi Adeyemi</strong><br><span style="font-size:11px;color:var(--text-3)">Port Harcourt</span></td><td>Alert acted on — saved manually</td><td style="color:var(--g700)">+₦2,500</td><td><span class="badge badge-green">Converted</span></td><td style="color:var(--text-3)">7:42 AM</td></tr>
+              <tr><td><strong>Bashir Musa</strong><br><span style="font-size:11px;color:var(--text-3)">Kano</span></td><td>Early withdrawal</td><td style="color:var(--r700)">−₦8,000</td><td><span class="badge badge-gray">Penalty applied</span></td><td style="color:var(--text-3)">7:30 AM</td></tr>
+              <tr><td><strong>Temi Balogun</strong><br><span style="font-size:11px;color:var(--text-3)">Ibadan</span></td><td>New user registered</td><td>—</td><td><span class="badge badge-blue">Onboarding</span></td><td style="color:var(--text-3)">7:15 AM</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="card-head"><div class="card-title">Alert performance</div></div>
+        <div class="spend-bar">
+          <div class="spend-bar-head"><div class="spend-bar-label">Acted on (tapped action)</div><div class="spend-bar-amt">41%</div></div>
+          <div class="spend-bar-track"><div class="spend-bar-fill" style="width:41%;background:var(--g600)"></div></div>
+        </div>
+        <div class="spend-bar">
+          <div class="spend-bar-head"><div class="spend-bar-label">Read but not acted on</div><div class="spend-bar-amt">35%</div></div>
+          <div class="spend-bar-track"><div class="spend-bar-fill" style="width:35%;background:var(--b500)"></div></div>
+        </div>
+        <div class="spend-bar">
+          <div class="spend-bar-head"><div class="spend-bar-label">Dismissed</div><div class="spend-bar-amt">24%</div></div>
+          <div class="spend-bar-track"><div class="spend-bar-fill" style="width:24%;background:var(--n300)"></div></div>
+        </div>
+      </div>
+    </div>
+ 
+  </main>
+</div>
+ 
+<script>
+/* ─── NAVIGATION ─────────────────────────────────────────── */
+function navigate(page){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active')});
+  var el=document.getElementById('page-'+page);
+  if(el)el.classList.add('active');
+  var sb=document.querySelector('[data-page="'+page+'"]');
+  if(sb)sb.classList.add('active');
+  window.scrollTo(0,0);
+  closeSidebar();
+}
+ 
+/* ─── SIDEBAR MOBILE ─────────────────────────────────────── */
+function toggleSidebar(){
+  var s=document.getElementById('sidebar');
+  var o=document.getElementById('overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+ 
+/* ─── TOAST ─────────────────────────────────────────────── */
+var toastTimer;
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show')},3000);
+}
+ 
+/* ─── ONBOARDING STEPS ───────────────────────────────────── */
+function goStep(n){
+  document.querySelectorAll('.ob-step').forEach(function(s){s.classList.remove('active')});
+  var s=document.getElementById('ob-step'+n);
+  if(s)s.classList.add('active');
+}
+function updatePreview(){
+  var rate=parseInt(document.getElementById('rate-slider').value);
+  var lock=parseInt(document.getElementById('lock-slider').value);
+  document.getElementById('rate-val').textContent=rate+'%';
+  document.getElementById('lock-val').textContent=lock+(lock===1?' mo':' mo');
+  var saved=(10000*rate/100).toLocaleString('en-NG',{maximumFractionDigits:0});
+  var lockStr=lock+(lock===1?' month':' months');
+  document.getElementById('preview-box').innerHTML=
+    'On a <strong>₦10,000</strong> credit → <strong>₦'+saved+'</strong> moves to savings automatically. Locked for <strong>'+lockStr+'</strong>.';
+}
+function activateSavings(){
+  var rate=document.getElementById('rate-slider').value;
+  var lock=document.getElementById('lock-slider').value;
+  document.getElementById('conf-rate').textContent=rate+'%';
+  document.getElementById('conf-lock').textContent=lock+(parseInt(lock)===1?' month':' months');
+  goStep(4);
+  toast('Auto-savings activated! 🎉');
+}
+ 
+/* ─── WITHDRAWAL ─────────────────────────────────────────── */
+function calcWithdraw(val){
+  val=parseInt(val);
+  var penalty=Math.round(val*0.05);
+  var receive=val-penalty;
+  document.getElementById('wd-chosen').textContent='₦'+val.toLocaleString();
+  document.getElementById('wd-penalty').innerHTML=
+    'Early withdrawal penalty: <strong>₦'+penalty.toLocaleString()+' (5%)</strong><br>You will receive: <strong id="wd-receive">₦'+receive.toLocaleString()+'</strong> in your OPay wallet immediately.';
+  document.getElementById('wd-confirm-btn').textContent='Confirm — withdraw ₦'+val.toLocaleString();
+}
+function processWithdraw(){
+  var val=parseInt(document.getElementById('wd-slider').value);
+  var penalty=Math.round(val*0.05);
+  var receive=val-penalty;
+  var btn=document.getElementById('wd-confirm-btn');
+  btn.textContent='Processing...';
+  btn.disabled=true;
+  btn.style.opacity='.6';
+  setTimeout(function(){
+    document.getElementById('wd-main').style.display='none';
+    document.getElementById('wd-success').style.display='block';
+    document.getElementById('wd-success-msg').textContent=
+      '₦'+receive.toLocaleString()+' has been sent to your OPay wallet. Your savings settings are still active — you can rebuild your streak.';
+    toast('₦'+receive.toLocaleString()+' sent to your wallet ✓');
+  },1400);
+}
+function resetWithdraw(){
+  document.getElementById('wd-main').style.display='block';
+  document.getElementById('wd-success').style.display='none';
+  var btn=document.getElementById('wd-confirm-btn');
+  btn.disabled=false;
+  btn.style.opacity='1';
+  btn.textContent='Confirm — withdraw ₦5,000';
+  document.getElementById('wd-slider').value=5000;
+  calcWithdraw(5000);
+  navigate('dashboard');
+}
+ 
+/* ─── ALERT DISMISS ──────────────────────────────────────── */
+function dismissAlert(btn,msg){
+  var card=btn.closest('.alert-card');
+  card.style.transition='opacity .3s, transform .3s';
+  card.style.opacity='0';
+  card.style.transform='translateY(-4px)';
+  toast(msg);
+  setTimeout(function(){card.remove()},300);
+}
+ 
+/* ─── LABEL CHIPS ────────────────────────────────────────── */
+function selectLabel(chip,sheetId,label){
+  var sheet=document.getElementById(sheetId);
+  sheet.querySelectorAll('.label-chip').forEach(function(c){c.classList.remove('selected')});
+  chip.classList.add('selected');
+  setTimeout(function(){
+    sheet.style.transition='opacity .3s';
+    sheet.style.opacity='0';
+    toast('Labeled as '+label+' ✓');
+    setTimeout(function(){sheet.remove()},300);
+  },400);
+}
+ 
+/* ─── KEYBOARD ESC ───────────────────────────────────────── */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeSidebar();
+});
+</script>
+</body>
